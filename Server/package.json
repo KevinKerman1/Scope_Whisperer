@@ -1,6 +1,7 @@
 {
   "name": "server",
   "version": "1.0.0",
+  "type": "module",
   "main": "index.js",
   "scripts": {
     "start": "node index.js", 
@@ -9,13 +10,15 @@
   "keywords": [],
   "author": "Kevin Kerman",
   "license": "ISC",
-  "description": "Server to handle file uploads, convert PDFs to images, and send data to OpenAI Assistant 'Scope_Whisperer'",
+  "description": "Server to handle file uploads, convert PDFs to images, extract text, and send data to OpenAI Assistant",
   "dependencies": {
     "axios": "^1.7.7",
+    "dotenv": "^16.0.3",
     "express": "^4.21.1",
     "multer": "^1.4.5-lts.1",
     "openai": "^4.68.1",
     "pdf-lib": "^1.17.1",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "tesseract.js": "^4.0.2"
   }
 }
