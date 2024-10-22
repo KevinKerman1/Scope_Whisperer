@@ -59,6 +59,12 @@ app.post('/upload', upload.single('file'), async (req, res) => {
                 if (err) console.error('Error deleting file:', err);
             });
         }
+        // Clean up the intermediate image file if it was created
+        if (imagePath !== req.file.path) {
+            fs.unlink(imagePath, (err) => {
+                if (err) console.error('Error deleting converted image:', err);
+            });
+        }
     }
 });
 
@@ -91,27 +97,42 @@ const callOpenAI = async (text) => {
     const apiKey = process.env.OPENAI_API_KEY;  // Use the API key from environment variables
     const assistantId = 'asst_ql01W5np8OOlaAOzAh2FFmNx';  // Your OpenAI assistant ID
 
-    const response = await axios.post(
-        `https://api.openai.com/v1/assistants/${assistantId}/messages`,
-        {
-            model: 'gpt-3.5-turbo',  // or 'gpt-4' if you have access
-            messages: [
-                { role: 'system', content: 'Your system instructions here...' },
-                { role: 'user', content: text }
-            ],
-            temperature: 0.3
-        },
-        {
-            headers: {
-                'Authorization': `Bearer ${apiKey}`,
-                'Content-Type': 'application/json',
+    try {
+        const response = await axios.post(
+            `https://api.openai.com/v2/assistants/${assistantId}/messages`,  // Updated endpoint for v2 system
+            {
+                messages: [
+                    { role: 'system', content: 'Your system instructions here...' },
+                    { role: 'user', content: text }
+                ],
+                model: 'gpt-4o',  // Specify the correct model version
+                temperature: 0.3  // Adjust settings as needed
             },
-        }
-    );
+            {
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                },
+            }
+        );
 
-    // Extract the assistant's reply
-    const assistantReply = response.data.choices[0].message.content;
-    return JSON.parse(assistantReply);  // Assuming the assistant returns valid JSON
+        // Extract the assistant's reply. Verify that the response has the correct format
+        const assistantReply = response.data?.messages?.[0]?.content || 'No valid response';
+        
+        // Parse the response if it contains valid JSON
+        let parsedResult;
+        try {
+            parsedResult = JSON.parse(assistantReply);
+        } catch (error) {
+            parsedResult = { error: "Failed to parse assistant response", content: assistantReply };
+        }
+
+        return parsedResult;
+
+    } catch (error) {
+        console.error('Error calling OpenAI API:', error.response?.data || error.message);
+        throw error;
+    }
 };
 
 app.listen(port, () => {
