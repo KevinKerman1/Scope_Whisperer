@@ -18,8 +18,7 @@ app.post('/convert-pdf', upload.single('PDF'), async (req, res) => {
     }
 
     const pdfPath = req.file.path;
-    const pdfImage = new PDFImage(pdfPath, {
-      combinedImage: true } );
+    const pdfImage = new PDFImage(pdfPath, { combinedImage: true });
 
     // Creating a directory to store the JPEG files
     const outputDir = path.join('uploads', 'images');
@@ -28,7 +27,7 @@ app.post('/convert-pdf', upload.single('PDF'), async (req, res) => {
     }
 
     const numberOfPages = await pdfImage.numberOfPages();
-    const imagePaths = [];
+    const imageFiles = [];
 
     for (let i = 0; i < numberOfPages; i++) {
       const imagePath = await pdfImage.convertPage(i);
@@ -36,42 +35,29 @@ app.post('/convert-pdf', upload.single('PDF'), async (req, res) => {
 
       // Rename the image to ensure it's saved as .jpg
       fs.renameSync(imagePath, newImagePath);
-      imagePaths.push(newImagePath);
+
+      // Read the image file as binary data or base64 encoded string
+      const imageData = fs.readFileSync(newImagePath, { encoding: 'base64' });
+      imageFiles.push(`data:image/jpeg;base64,${imageData}`);
+
+      // Clean up the image file
+      fs.unlinkSync(newImagePath);
     }
 
-    // If there are multiple images, compress them into a zip file or just send them in a JSON array.
-    if (imagePaths.length === 1) {
-      // For single-page PDF, send the image directly
-      res.sendFile(path.resolve(imagePaths[0]), err => {
-        if (err) {
-          console.error(err);
-          res.status(500).send({ message: 'Error sending the image.' });
-        }
+    // Send the actual images in base64 format as the response
+    res.json({
+      message: 'PDF converted to images successfully!',
+      images: imageFiles // Base64 encoded image data
+    });
 
-        // Cleanup after sending the file
-        fs.unlinkSync(pdfPath);
-        fs.unlinkSync(imagePaths[0]);
-      });
-    } else {
-      // For multi-page PDF, send the images as a JSON array with links to each image
-      res.json({
-        message: 'PDF converted to images successfully!',
-        images: imagePaths.map(image => `http://localhost:${port}/${image}`)
-      });
-
-      // Cleanup uploaded PDF
-      fs.unlinkSync(pdfPath);
-    }
+    // Cleanup uploaded PDF
+    fs.unlinkSync(pdfPath);
   } catch (err) {
     console.error(err);
     res.status(500).send({ message: 'An error occurred while converting the PDF.' });
   }
 });
 
-// Serve static files (the JPEG images)
-app.use('/uploads', express.static('uploads'));
-
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
-//
