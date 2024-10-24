@@ -18,7 +18,8 @@ app.post('/convert-pdf', upload.single('PDF'), async (req, res) => {
     }
 
     const pdfPath = req.file.path;
-    const pdfImage = new PDFImage(pdfPath);
+    const pdfImage = new PDFImage(pdfPath, {
+      combinedImage: true } );
 
     // Creating a directory to store the JPEG files
     const outputDir = path.join('uploads', 'images');
