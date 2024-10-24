@@ -1,24 +1,19 @@
 {
-  "name": "server",
+  "name": "scope_whisperer",
   "version": "1.0.0",
-  "type": "module",
+  "description": "Extract Finanical dtaa from ins scopes",
+  "type" : "module",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js", 
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "test",
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "Kevin Kerman",
+  "author": "Big Daddy Kevin",
   "license": "ISC",
-  "description": "Server to handle file uploads, convert PDFs to images, extract text, and send data to OpenAI Assistant",
   "dependencies": {
-    "axios": "^1.7.7",
-    "dotenv": "^16.0.3",
-    "express": "^4.21.1",
+    "express": "^4.18.2",
     "multer": "^1.4.5-lts.1",
-    "openai": "^4.68.1",
-    "pdf-lib": "^1.17.1",
-    "sharp": "^0.33.5",
-    "tesseract.js": "^4.0.2"
+    "pdf-image": "^2.0.0",
+    "fs": "0.0.1-security"
   }
 }
