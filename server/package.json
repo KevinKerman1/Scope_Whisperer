@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "start": "node index.js"
+    "start": "node src/index.js"
   },
   "author": "Big Daddy Kevin",
   "license": "ISC",
