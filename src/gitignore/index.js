@@ -7,6 +7,9 @@ import { PDFImage } from 'pdf-image';
 const app = express();
 const port = 3000;
 
+// Global variable to store the base64 encoded result
+let Base64Result = '';
+
 // Multer setup for handling file uploads
 const upload = multer({ dest: 'uploads/' });
 
@@ -20,35 +23,32 @@ app.post('/convert-pdf', upload.single('PDF'), async (req, res) => {
     const pdfPath = req.file.path;
     const pdfImage = new PDFImage(pdfPath, { combinedImage: true });
 
-    // Creating a directory to store the JPEG files
+    // Creating a directory to store the combined JPEG file
     const outputDir = path.join('uploads', 'images');
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
 
-    const numberOfPages = await pdfImage.numberOfPages();
-    const imageFiles = [];
+    // Generate the combined image for all pages
+    const combinedImagePath = await pdfImage.convertFile();
+    const finalImagePath = path.join(outputDir, 'combined.jpg');
 
-    for (let i = 0; i < numberOfPages; i++) {
-      const imagePath = await pdfImage.convertPage(i);
-      const newImagePath = path.join(outputDir, `page-${i}.jpg`);
+    // Rename the image to ensure it's saved as .jpg
+    fs.renameSync(combinedImagePath, finalImagePath);
 
-      // Rename the image to ensure it's saved as .jpg
-      fs.renameSync(imagePath, newImagePath);
+    // Convert the image to base64 and store it in the global variable
+    Base64Result = fs.readFileSync(finalImagePath, { encoding: 'base64' });
+    console.log(Base64Result);
 
-      // Read the image file as binary data or base64 encoded string
-      const imageData = fs.readFileSync(newImagePath, { encoding: 'base64' });
-      imageFiles.push(`data:image/jpeg;base64,${imageData}`);
+    // Set headers to send the image as a JPEG file
+    res.setHeader('Content-Type', 'image/jpeg');
+    res.setHeader('Content-Disposition', 'inline; filename="combined.jpg"');
 
-      // Clean up the image file
-      fs.unlinkSync(newImagePath);
-    }
+    // Stream the image file directly to the response
+    const imageStream = fs.createReadStream(finalImagePath);
+    imageStream.pipe(res);
 
-    // Send the actual images in base64 format as the response
-    res.json({
-      message: 'PDF converted to images successfully!',
-      images: imageFiles // Base64 encoded image data
-    });
+    console.log(`Combined image saved at: ${finalImagePath}`);
 
     // Cleanup uploaded PDF
     fs.unlinkSync(pdfPath);
