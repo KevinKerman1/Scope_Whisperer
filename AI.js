@@ -26,7 +26,7 @@ export async function sendToOpenAI(base64Image, res) {
         {
           role: "user",
           content: [
-            { type: "text", text: "What are in these images? Is there any difference between them?" },
+            { type: "text", text: "Extract the following financial data from the provided 'Summary for Dwelling' section of the insurance scope: Total RCV (Replacement Cost Value), ACV(Actual Cash Value), Deductible (Sometimes indicated by 'Less Deductible'), Total Depreciation (and/or 'Non-recoverable depreciation if listed in the Summary of dwelling), Net Claim, and the Date on the scope in format 'MM/DD/YYYY'. Return the values in JSON format as follows: { 'ACV': value, 'RCV': value, 'Deductible': value, 'Depreciation': value, 'Net Claim': value, 'Scope Date': value }." },
             {
               type: "image_url",
               image_url: {
