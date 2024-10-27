@@ -6,7 +6,7 @@
   "main": "index.js",
   "scripts": {
     "test": "test",
-    "start": "node src/gitignore/index.js"
+    "start": "node index.js"
   },
   "author": "Big Daddy Kevin",
   "license": "ISC",

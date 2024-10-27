@@ -1,8 +1,10 @@
+// Index.js
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { PDFImage } from 'pdf-image';
+import { sendToOpenAI } from './AI.js'; // Import the function from AI.js
 
 const app = express();
 const port = 3000;
@@ -38,15 +40,9 @@ app.post('/convert-pdf', upload.single('PDF'), async (req, res) => {
 
     // Convert the image to base64 and store it in the global variable
     Base64Result = fs.readFileSync(finalImagePath, { encoding: 'base64' });
-    console.log(Base64Result);
 
-    // Set headers to send the image as a JPEG file
-    res.setHeader('Content-Type', 'image/jpeg');
-    res.setHeader('Content-Disposition', 'inline; filename="combined.jpg"');
-
-    // Stream the image file directly to the response
-    const imageStream = fs.createReadStream(finalImagePath);
-    imageStream.pipe(res);
+    // Call the function to send Base64Result to OpenAI API and pass the response object
+    await sendToOpenAI(Base64Result, res);
 
     console.log(`Combined image saved at: ${finalImagePath}`);
 

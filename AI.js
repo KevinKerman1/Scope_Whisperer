@@ -1,17 +1,17 @@
+// AI.js
 import OpenAI from 'openai';
-import fs from 'fs';
 import dotenv from 'dotenv';
 dotenv.config();
 
 const client = new OpenAI({
-  apiKey: process.env['OpenAI_API_KEY'], // This is the default and can be omitted
+  apiKey: process.env['OpenAI_API_KEY'],
 });
 
-async function main() {
-    const base64Image = fs.readFileSync('TestDocs/car-967387_1280.webp', 'base64');
-
+// Function to send base64 image to OpenAI API and respond to the client
+export async function sendToOpenAI(base64Image, res) {
+  try {
     const response = await client.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4o", // or "gpt-3.5-turbo" based on available models
       messages: [
         {
           role: "user",
@@ -20,14 +20,17 @@ async function main() {
             {
               type: "image_url",
               image_url: {
-                "url": `data:image/jpeg;base64,${base64Image}`, // Match the content type to PDF
-              },
-            }
+                "url": `data:image/jpeg;base64,${base64Image}`,} ,
+            },
           ],
         },
       ],
     });
-    console.log(response.choices[0]);
-}
 
-main();
+    // Send the response back to the client
+    res.json(response.choices[0]);
+  } catch (error) {
+    console.error("Error sending image to OpenAI:", error);
+    res.status(500).send({ message: 'An error occurred while communicating with OpenAI.' });
+  }
+}
