@@ -5,7 +5,9 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const client = new OpenAI({
-  apiKey: process.env['OpenAI_API_KEY'],
+
+   //apiKey: process.env['OpenAI_API_KEY'], // API Key for local development
+   apiKey: process.env.OpenAI_API_KEY, // API Key for Render
 });
 
 // Function to send multiple base64 images to OpenAI API
