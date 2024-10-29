@@ -28,7 +28,7 @@ export async function sendToOpenAI(base64Images, res) {
           content: [
             {
               type: "text",
-              text: "Extract the following financial data from the provided 'Summary for Dwelling' section of the insurance scope: Total RCV (Replacement Cost Value), ACV(Actual Cash Value), Deductible (Sometimes indicated by 'Less Deductible'), Total Depreciation (and/or 'Non-recoverable depreciation if listed in the Summary of dwelling), Net Claim, and the Date on the scope in format 'MM/DD/YYYY'. Return the values in JSON format as follows: { 'ACV': value, 'RCV': value, 'Deductible': value, 'Depreciation': value, 'Net Claim': value, 'Scope Date': value }. ",
+              text: "Extract the following financial data from the provided 'Summary for Dwelling' section of the insurance scope: Total RCV (Replacement Cost Value), ACV(Actual Cash Value), Deductible (Sometimes indicated by 'Less Deductible'), Total Depreciation (and/or 'Non-recoverable depreciation if listed in the Summary of dwelling), Net Claim, and the Date on the scope in format 'MM/DD/YYYY'. Return the values in JSON format as follows: { 'ACV': value, 'RCV': value, 'Deductible': value, 'Depreciation': value, 'Net Claim': value, 'Scope Date': value }. Once you have extracted the data, provide a certanty score on a scale from 1-100 with 100 meaning you are 100% certain all values are correct and 1 meaning you are not certain at all.",
             },
             ...imageMessages, // Spread in the images array as individual entries
           ],
