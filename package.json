@@ -16,6 +16,7 @@
     "pdf-image": "^2.0.0",
     "openai": "4.68.4",
     "dotenv": "16.4.5",
-    "fs": "0.0.1-security"
+    "fs": "0.0.1-security",
+    "pdf-to-img": "4.1.1"
   }
 }

@@ -1,16 +1,13 @@
-// Index.js
+// index.js
 import express from 'express';
 import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
-import { PDFImage } from 'pdf-image';
-import { sendToOpenAI } from './AI.js'; // Import the function from AI.js
+import { pdf } from 'pdf-to-img';
+import { sendToOpenAI } from './AI.js';
 
 const app = express();
 const port = 3000;
-
-// Global variable to store the base64 encoded result
-let Base64Result = '';
 
 // Multer setup for handling file uploads
 const upload = multer({ dest: 'uploads/' });
@@ -23,28 +20,30 @@ app.post('/convert-pdf', upload.single('PDF'), async (req, res) => {
     }
 
     const pdfPath = req.file.path;
-    const pdfImage = new PDFImage(pdfPath, { combinedImage: true });
-
-    // Creating a directory to store the combined JPEG file
     const outputDir = path.join('uploads', 'images');
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir);
     }
 
-    // Generate the combined image for all pages
-    const combinedImagePath = await pdfImage.convertFile();
-    const finalImagePath = path.join(outputDir, 'combined.jpg');
+    // Convert PDF to images with high-quality settings
+    const document = await pdf(pdfPath, { scale: 3 });
+    const base64Images = [];
 
-    // Rename the image to ensure it's saved as .jpg
-    fs.renameSync(combinedImagePath, finalImagePath);
+    let counter = 1;
+    for await (const imageBuffer of document) {
+      const imagePath = path.join(outputDir, `page${counter}.png`);
+      fs.writeFileSync(imagePath, imageBuffer);
 
-    // Convert the image to base64 and store it in the global variable
-    Base64Result = fs.readFileSync(finalImagePath, { encoding: 'base64' });
+      // Convert each image to base64 and store it in an array
+      const base64Image = fs.readFileSync(imagePath, { encoding: 'base64' });
+      base64Images.push(base64Image);
+      counter++;
+    }
 
-    // Call the function to send Base64Result to OpenAI API and pass the response object
-    await sendToOpenAI(Base64Result, res);
+    // Send all base64 images to OpenAI API
+    await sendToOpenAI(base64Images, res);
 
-    console.log(`Combined image saved at: ${finalImagePath}`);
+    console.log(`Images saved and processed: ${base64Images.length} pages`);
 
     // Cleanup uploaded PDF
     fs.unlinkSync(pdfPath);
