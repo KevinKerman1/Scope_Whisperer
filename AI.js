@@ -6,41 +6,41 @@ import { z } from "zod";
 dotenv.config();
 
 const client = new OpenAI({
-  //apiKey: process.env['OpenAI_API_KEY'], // API Key for local development
+   //apiKey: process.env['OpenAI_API_KEY'], // API Key for local development
    apiKey: process.env.OpenAI_API_KEY, // API Key for Render
 });
 
 // Define the expected response structure using zod
 // Define the expected response structure using zod
 const FinancialDataSchema = z.object({
-    Dwelling_ACV: z.number().nullable().optional().default(NaN),
-    Dwelling_RCV: z.number().nullable().optional().default(NaN),
-    Dwelling_Deductible: z.number().nullable().optional().default(NaN),
-    Dwelling_Depreciation: z.number().nullable().optional().default(NaN),
-    Dwelling_NetClaim: z.number().nullable().optional().default(NaN),
-    Scope_DT: z.string().optional().default(null),
-    Carrier: z.string().optional().default(null),
-    TypeOfLoss: z.string().optional().default(null),
-    DOL: z.string().optional().default(null),
-    DOD: z.string().optional().default(null),
-    PHname: z.string().optional().default(null),
-    PHemail: z.string().optional().default(null),
-    PHphone: z.string().optional().default(null),
-    ClaimRep: z.string().optional().default(null),
-    ClaimRepEmail: z.string().optional().default(null),
-    ClaimRepPhone: z.string().optional().default(null),
-    Estimator: z.string().optional().default(null),
-    EstimatorEmail: z.string().optional().default(null),
-    EstimatorPhone: z.string().optional().default(null),
-    LossLocationAddress: z.string().optional().default(null),
-    DwellingSQ_CT: z.number().nullable().optional().default(NaN),
-    Tear_Off_CT: z.number().nullable().optional().default(NaN),
-    Interior_ACV: z.number().nullable().optional().default(NaN),
-    Interior_RCV: z.number().nullable().optional().default(NaN),
-    Interior_DEP: z.number().nullable().optional().default(NaN),
-    OS_RCV: z.number().nullable().optional().default(NaN),
-    OS_ACV: z.number().nullable().optional().default(NaN),
-    OS_DEP: z.number().nullable().optional().default(NaN),
+    Dwelling_ACV: z.number().nullable().optional().default(null),
+    Dwelling_RCV: z.number().nullable().optional().default(null),
+    Dwelling_Deductible: z.number().nullable().optional().default(null),
+    Dwelling_Depreciation: z.number().nullable().optional().default(null),
+    Dwelling_NetClaim: z.number().nullable().optional().default(null),
+    Scope_DT: z.string().nullable().optional().default(null),
+    Carrier: z.string().nullable().optional().default(null),
+    TypeOfLoss: z.string().nullable().optional().default(null),
+    DOL: z.string().nullable().optional().default(null),
+    DOD: z.string().nullable().optional().default(null),
+    PHname: z.string().nullable().optional().default(null),
+    PHemail: z.string().nullable().optional().default(null),
+    PHphone: z.string().nullable().optional().default(null),
+    ClaimRep: z.string().nullable().optional().default(null),
+    ClaimRepEmail: z.string().nullable().optional().default(null),
+    ClaimRepPhone: z.string().nullable().optional().default(null),
+    Estimator: z.string().nullable().optional().default(null),
+    EstimatorEmail: z.string().nullable().optional().default(null),
+    EstimatorPhone: z.string().nullable().optional().default(null),
+    LossLocationAddress: z.string().nullable().optional().default(null),
+    DwellingSQ_CT: z.number().nullable().optional().default(null),
+    Tear_Off_CT: z.number().nullable().optional().default(null),
+    Interior_ACV: z.number().nullable().optional().default(null),
+    Interior_RCV: z.number().nullable().optional().default(null),
+    Interior_DEP: z.number().nullable().optional().default(null),
+    OS_RCV: z.number().nullable().optional().default(null),
+    OS_ACV: z.number().nullable().optional().default(null),
+    OS_DEP: z.number().nullable().optional().default(null),
     CertaintyScore: z.preprocess((val) => val ?? 0, z.number().min(0).max(100).default(0)),
 });
 
