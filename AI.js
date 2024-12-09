@@ -20,6 +20,12 @@ const FinancialDataSchema = z.object({
     Dwelling_NetClaim: z.number().nullable().optional().default(null),
     Scope_DT: z.string().nullable().optional().default(null),
     Carrier: z.string().nullable().optional().default(null),
+    Total_Deductible: z.number().nullable().optional().default(null),
+    Policy_Num: z.string().nullable().optional().default(null),
+    Claim_Num: z.string().nullable().optional().default(null),
+    NRD: z.string().nullable().optional().default(null),
+    Credit: z.string().nullable().optional().default(null),
+    PWI: z.string().nullable().optional().default(null),
     TypeOfLoss: z.string().nullable().optional().default(null),
     DOL: z.string().nullable().optional().default(null),
     DOD: z.string().nullable().optional().default(null),
@@ -61,7 +67,54 @@ export async function sendToOpenAI(base64Images, res) {
           content: [
             {
               type: "text",
-              text: "Extract the following financial and claim details from the attached insurance scope document. Format the response as a JSON object with the structure shown below. For all financial values (e.g., ACV, RCV, Deductible), return a number. If any field is missing or unavailable, return null. \n\nJSON format:\n\n{\n    \"Dwelling_ACV\": The Actual Cash Value (ACV) for the dwelling as a number,\n    \"Dwelling_RCV\": The Replacement Cost Value (RCV) for the dwelling as a number,\n    \"Dwelling_Deductible\": Deductible amount for the dwelling as a number (this value usually has the key of 'Full Deductible'),\n    \"Dwelling_Depreciation\": Depreciation for the dwelling as a number,\n    \"Dwelling_NetClaim\": Net claim amount for the dwelling as a number,\n    \"Scope_DT\": Date when the estimate was issued (usually found in the bottom right hand corner of every page),\n    \"Carrier\": Name of the insurance carrier,\n    \"TypeOfLoss\": Type of loss (e.g., Hurricane, Fire, Hail, Wind),\n    \"DOL\": Date of loss,\n    \"DOD\": Date of discovery (also called 'Date Contacted'),\n    \"PHname\": Name of the policyholder (also referred to as the 'insured'),\n    \"PHemail\": Email of the policyholder/insured,\n   \"PHphone\": phone number of the policyholder/insured,\n   \"ClaimRep\": Name of the claim representative,\n    \"ClaimRepEmail\": Email of the claim representative,\n    \"ClaimRepPhone\": Phone number of the claim representative,\n    \"Estimator\": Name of the estimator if different from claim representative,\n    \"EstimatorEmail\": Email of the estimator,\n    \"EstimatorPhone\": Phone number of the estimator,\n    \"LossLocationAddress\": Address of the property where the loss occurred,\n    \"DwellingSQ_CT\": Square count associated with the dwelling coverage (if present),\n    \"Tear_Off_CT\": quantity of tear-off also refered to as 'Tear off composition shingles' this datapoint is also usualy the first line item of estimate (if present),\n    \"Interior_ACV\": ACV for interior items as a number (if present),\n    \"Interior_RCV\": RCV for interior items as a number (if present),\n    \"Interior_DEP\": Depreciation for interior items as a number (if present),\n    \"OS_RCV\": Replacement Cost Value for 'other structures' (e.g., fences) as a number (if present),\n    \"OS_ACV\": Actual Cash Value for other structures as a number (if present),\n    \"OS_DEP\": Depreciation for other structures as a number (if present),\n    \"CertaintyScore\": A certainty score based on document consistency, rated 0-100.\n}\n\nReturn all financial values as numbers and leave any missing information as null."
+              text: `Extract the following financial and claim details from the attached insurance scope document. Format the response as a JSON object with the structure shown below. For all financial values (e.g., ACV, RCV, Deductible), return a number. If any field is missing or unavailable, return null.
+
+              JSON format:
+              
+              {
+                  "Dwelling_ACV": The Actual Cash Value (ACV) for the dwelling as a number,
+                  "Dwelling_RCV": The Replacement Cost Value (RCV) for the dwelling as a number,
+                  "Dwelling_Deductible": Deductible amount for the dwelling as a number (this value usually has the key of 'Full Deductible'),
+                  "Dwelling_Depreciation": Depreciation for the dwelling as a number,
+                  "Dwelling_NetClaim": Net claim amount for the dwelling as a number,
+                  "Scope_DT": Date when the estimate was issued (usually found in the bottom right-hand corner of every page),
+                  "Carrier": Name of the insurance carrier,
+                  "Total_Deductible": Total deductible across all applicable items, including separate deductibles for other structures or similar, as a number,
+                  "Policy_Num": Policy number of the insurance scope, if present,
+                  "Claim_Num": Claim number of the insurance scope, if present,
+                  "NRD": Non-recoverable depreciation amount as a string, indicated either by 'non-recoverable depreciation' or values enclosed in '<>',
+                  "Credit": Deductible credit amount applied to the total deductible, if applicable, as a number,
+                  "PWI": Items that will be 'Paid When Incurred' as a string, if present,
+                  "TypeOfLoss": Type of loss (e.g., Hurricane, Fire, Hail, Wind),
+                  "DOL": Date of loss,
+                  "DOD": Date of discovery (also called 'Date Contacted'),
+                  "PHname": Name of the policyholder (also referred to as the 'insured'),
+                  "PHemail": Email of the policyholder/insured,
+                  "PHphone": Phone number of the policyholder/insured,
+                  "ClaimRep": Name of the claim representative,
+                  "ClaimRepEmail": Email of the claim representative,
+                  "ClaimRepPhone": Phone number of the claim representative,
+                  "Estimator": Name of the estimator if different from claim representative,
+                  "EstimatorEmail": Email of the estimator,
+                  "EstimatorPhone": Phone number of the estimator,
+                  "LossLocationAddress": Address of the property where the loss occurred,
+                  "DwellingSQ_CT": Square count associated with the dwelling coverage (if present),
+                  "Tear_Off_CT": Quantity of tear-off also referred to as 'Tear off composition shingles,' this datapoint is also usually the first line item of the estimate (if present),
+                  "Interior_ACV": ACV for interior items as a number (if present),
+                  "Interior_RCV": RCV for interior items as a number (if present),
+                  "Interior_DEP": Depreciation for interior items as a number (if present),
+                  "OS_RCV": Replacement Cost Value for 'other structures' (e.g., fences) as a number (if present),
+                  "OS_ACV": Actual Cash Value for other structures as a number (if present),
+                  "OS_DEP": Depreciation for other structures as a number (if present),
+                  "CertaintyScore": A certainty score based on document consistency, rated 0-100.
+              }
+              
+              Notes:
+              1. The field 'Total_Deductible' should sum up all deductibles across the document.
+              2. For 'NRD,' look for any mention of 'non-recoverable depreciation' or values formatted as '<value>'.
+              3. For 'Credit,' identify deductible credits that reduce the net deductible due.
+              4. The 'PWI' field should include any items flagged as 'Paid When Incurred.'
+              5. Leave any missing information as null.`
             },
             ...imageMessages,
           ],
